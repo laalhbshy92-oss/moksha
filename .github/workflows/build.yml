@@ -12,6 +12,7 @@ jobs:
         run: |
           if [ -f android/app/google-services.json ]; then
             cp android/app/google-services.json /tmp/google-services.json
+            echo "found and backed up"
           fi
       - uses: subosito/flutter-action@v2
         with:
@@ -19,12 +20,13 @@ jobs:
           channel: 'stable'
       - name: Create project
         run: flutter create --platforms=android --org com.moksha --project-name app .
-      - name: Restore google-services.json
+      - name: Restore google-services and add Firebase
         run: |
           if [ -f /tmp/google-services.json ]; then
             mkdir -p android/app
             cp /tmp/google-services.json android/app/google-services.json
           fi
+          flutter pub add firebase_core
       - name: Fix lib files
         run: |
           cat > lib/firebase_options.dart << 'EOF'
