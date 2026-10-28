@@ -8,49 +8,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Backup google-services.json
-        run: |
-          if [ -f android/app/google-services.json ]; then
-            cp android/app/google-services.json /tmp/google-services.json
-            echo "found and backed up"
-          fi
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.6'
+          flutter-version: '3.22.0'
           channel: 'stable'
-      - name: Create project
-        run: flutter create --platforms=android --org com.moksha --project-name app .
-      - name: Restore google-services and add Firebase
+      - name: Fix project
         run: |
-          if [ -f /tmp/google-services.json ]; then
-            mkdir -p android/app
-            cp /tmp/google-services.json android/app/google-services.json
-          fi
-          flutter pub add firebase_core
-      - name: Fix lib files
-        run: |
-          cat > lib/firebase_options.dart << 'EOF'
-          import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
-          class DefaultFirebaseOptions {
-            static FirebaseOptions get currentPlatform => android;
-            static const FirebaseOptions android = FirebaseOptions(
-              apiKey: 'AIzaSyCV14PVPFRN_DqqqvasquII0x5BdwZ5mLc',
-              appId: '1:410725291193:android:dd506e6519e83561c9b768',
-              messagingSenderId: '410725291193',
-              projectId: 'moksha-app-ce6e3',
-              storageBucket: 'moksha-app-ce6e3.firebasestorage.app',
-            );
-          }
-          EOF
+          flutter create --platforms=android --org com.moksha --project-name app .
           cat > lib/main.dart << 'EOF'
           import 'package:flutter/material.dart';
-          import 'package:firebase_core/firebase_core.dart';
-          import 'firebase_options.dart';
-          void main() async {
-            WidgetsFlutterBinding.ensureInitialized();
-            await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-            runApp(const MyApp());
-          }
+          void main() => runApp(const MyApp());
           class MyApp extends StatelessWidget {
             const MyApp({super.key});
             @override
@@ -58,15 +25,14 @@ jobs:
               return MaterialApp(
                 debugShowCheckedModeBanner: false,
                 home: Scaffold(
-                  backgroundColor: Colors.white,
-                  body: Center(child: Text("Moksha + Firebase شغال ✅", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+                  body: Center(child: Text("Moksha شغال ✅", style: TextStyle(fontSize: 30))),
                 ),
               );
             }
           }
           EOF
-      - name: Build APK
-        run: flutter build apk --release
+      - run: flutter pub get
+      - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
           name: moksha-apk
