@@ -1,4 +1,4 @@
-name: moksha
+name: app
 description: Moksha App
 publish_to: 'none'
 version: 1.0.0+1
@@ -10,6 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  firebase_core: ^2.24.0
 
 dev_dependencies:
   flutter_test:
