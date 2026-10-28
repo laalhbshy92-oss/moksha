@@ -12,25 +12,11 @@ jobs:
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
-      - name: Fix project
+      - name: Create clean project
+        run: flutter create --platforms=android --org com.moksha --project-name app .
+      - name: Write simple main
         run: |
-          flutter create --platforms=android --org com.moksha --project-name app .
-          cat > lib/main.dart << 'EOF'
-          import 'package:flutter/material.dart';
-          void main() => runApp(const MyApp());
-          class MyApp extends StatelessWidget {
-            const MyApp({super.key});
-            @override
-            Widget build(BuildContext context) {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                home: Scaffold(
-                  body: Center(child: Text("Moksha شغال ✅", style: TextStyle(fontSize: 30))),
-                ),
-              );
-            }
-          }
-          EOF
+          python3 -c "code='''import \"package:flutter/material.dart\";\nvoid main()=>runApp(const MyApp());\nclass MyApp extends StatelessWidget{const MyApp({super.key});@override Widget build(BuildContext c){return MaterialApp(debugShowCheckedModeBanner:false,home:Scaffold(body:Center(child:Text('Moksha شغال ✅',style:TextStyle(fontSize:28)))));}}''';open('lib/main.dart','w',encoding='utf-8').write(code)"
       - run: flutter pub get
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
